@@ -1,17 +1,18 @@
-package com.pandeys.messageproducer;
+package com.pandeys.messagereceiver;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageProducer;
+import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.spring.ActiveMQConnectionFactory;
 
-public class SendTestMessageToQueue {
+public class ReadTextMessageToQueue {
 
 	private static String url = ActiveMQConnection.DEFAULT_BROKER_URL;
 	private static String queueName = "com.pandeys.textMsgQueue";
@@ -26,9 +27,12 @@ public class SendTestMessageToQueue {
 		
 		Destination destination = session.createQueue(queueName);
 		
-		MessageProducer producer = session.createProducer(destination);
-		Message message = session.createTextMessage("Hello World!");
-		producer.send(message);
+		MessageConsumer consumer = session.createConsumer(destination);
+		Message message = consumer.receive();
+		if(message instanceof TextMessage) {
+			System.out.println("Message Read : " + ((TextMessage)message).getText());
+		}
+		
 		conn.close();
 		
 	}
