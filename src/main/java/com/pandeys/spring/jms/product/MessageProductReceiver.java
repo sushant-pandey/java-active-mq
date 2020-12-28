@@ -1,0 +1,39 @@
+package com.pandeys.spring.jms.product;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+import javax.jms.Session;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+import org.springframework.jms.support.converter.MessageConversionException;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MessageProductReceiver {
+
+	@Autowired
+	@Qualifier("jmsTemplate")
+	public JmsTemplate jmsTemplate;
+	
+	@Autowired
+	@Qualifier("messageConvertor")
+	public MessageConverter messageConvertor;
+	
+	public Product receiveMessage() {
+		Message receivedMessage = jmsTemplate.receive();
+		Product message = null;
+		try {
+			message = 	(Product)messageConvertor.fromMessage(receivedMessage);
+		} catch (MessageConversionException e) {
+			e.printStackTrace();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+		return message;
+	}
+}
